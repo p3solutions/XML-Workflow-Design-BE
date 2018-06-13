@@ -38,7 +38,7 @@ public class UploadController {
 
   @PostMapping("/multi")
   public ApplicationResponse uploadFileMulti(
-          @RequestParam("name") String name,
+          @RequestParam(value = "name", required=false) String name,
           @RequestParam("files") MultipartFile[] uploadfiles) {
 
     logger.debug("Multiple file upload!");
@@ -52,7 +52,7 @@ public class UploadController {
     }
 
     try {
-      saveUploadedFiles(Arrays.asList(uploadfiles), name);
+      saveUploadedFiles(Arrays.asList(uploadfiles));
     } catch (IOException e) {
       return ApplicationResponse.failure(e.getMessage());
     }
@@ -62,7 +62,7 @@ public class UploadController {
   }
 
   /** Save the uploaded file(s) */
-  private void saveUploadedFiles(List<MultipartFile> files, String name) throws IOException {
+  private void saveUploadedFiles(List<MultipartFile> files) throws IOException {
 
     logger.debug("Multiple file upload! With UploadModel");
 
