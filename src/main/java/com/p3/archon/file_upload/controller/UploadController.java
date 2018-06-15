@@ -31,7 +31,7 @@ public class UploadController {
   public ApplicationResponse index() {
     return ApplicationResponse.success("Application is running!!");
   }
-
+  @CrossOrigin()
   @PostMapping("/multi")
   public ApplicationResponse uploadFileMulti(
       @RequestParam(value = "name", required = false) String name,
@@ -47,7 +47,7 @@ public class UploadController {
             .collect(Collectors.joining(" , "));
 
     if (StringUtils.isEmpty(uploadedFileName)) {
-      return ApplicationResponse.success("Please select a file!");
+      return ApplicationResponse.failure("Please select a file!");
     }
 
     UUID id;
