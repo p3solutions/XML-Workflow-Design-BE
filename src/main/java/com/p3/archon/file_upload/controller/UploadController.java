@@ -3,13 +3,12 @@ package com.p3.archon.file_upload.controller;
 import com.p3.archon.common.beans.ApplicationResponse;
 import com.p3.archon.common.utils.MapBuilder;
 import com.p3.archon.file_upload.model.UploadModel;
-import lombok.NonNull;
+import com.p3.archon.tree_structure.XMLFileReader;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-import org.apache.xmlbeans.impl.regex.ParseException;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +20,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,8 +29,11 @@ public class UploadController {
 
   private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
+  public static HashMap<String, String> xsdFilePathMap = new HashMap<>();
+
   /** Save the uploaded file to this folder */
   private static String UPLOADED_FOLDER;
+
   @GetMapping
   public ApplicationResponse index() {
     return ApplicationResponse.success("Application is running!!");
@@ -74,11 +73,13 @@ public class UploadController {
     } catch (IOException e) {
       return ApplicationResponse.failure(e.getMessage());
     }
+    // treeStructureCreation();
     return ApplicationResponse.success(MapBuilder.of("files", model));
   }
 
   /** Save the uploaded file(s) */
-  private List<String> saveUploadedFiles(List<MultipartFile> files, String name) throws IOException {
+  private List<String> saveUploadedFiles(List<MultipartFile> files, String name)
+      throws IOException {
 
     logger.debug("Multiple file upload! With UploadModel");
 
@@ -104,8 +105,7 @@ public class UploadController {
     return filesPath;
   }
 
-
-  private void getXsdConversionFiles(List<String> filesPath) throws IOException{
+  private void getXsdConversionFiles(List<String> filesPath) throws IOException {
     String currentDirectory = System.getProperty("user.dir");
     String location = currentDirectory + File.separator + System.currentTimeMillis();
     for (String fileName : filesPath) {
@@ -120,22 +120,30 @@ public class UploadController {
       final SchemaDocument[] schemaDocs = Inst2Xsd.inst2xsd(xml, options);
       getSchema(schemaDocs[0], fileName, location);
     }
-
   }
 
-  public String getSchema(SchemaDocument schemaDocument, String fileName, String location) throws IOException {
+  private void getSchema(SchemaDocument schemaDocument, String fileName, String location)
+      throws IOException {
     StringWriter writer = new StringWriter();
     schemaDocument.save(writer, new XmlOptions().setSavePrettyPrint());
     writer.close();
 
-
     File f = new File(fileName);
     new File(location).mkdir();
-    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(location + File.separator + f.getName().substring(0, f.getName().indexOf(".")) + ".xsd"));
+    String xsdFile =
+        location + File.separator + f.getName().substring(0, f.getName().indexOf(".")) + ".xsd";
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(xsdFile));
     bufferedWriter.write(writer.toString());
-
     bufferedWriter.close();
-    return writer.toString();
+
+    xsdFilePathMap.put(f.getName(), xsdFile);
   }
 
+  private void treeStructureCreation() {
+    xsdFilePathMap.forEach(
+        (k, v) -> {
+          System.out.println("file : " + k + " value : " + v);
+          XMLFileReader.readXml(xsdFilePathMap.get(k));
+        });
+  }
 }
