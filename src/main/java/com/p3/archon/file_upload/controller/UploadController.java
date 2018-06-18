@@ -34,7 +34,7 @@ public class UploadController {
   private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
   /** Save the uploaded file to this folder */
-  private static String UPLOADED_FOLDER; 
+  private static String UPLOADED_FOLDER;
   @GetMapping
   public ApplicationResponse index() {
     return ApplicationResponse.success("Application is running!!");
@@ -115,10 +115,6 @@ public class UploadController {
       try {
         xml = new XmlObject[] {XmlObject.Factory.parse(new File(fileName))};
       } catch (XmlException e) {
-        e.printStackTrace();
-      } catch (ParseException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
         e.printStackTrace();
       }
       final SchemaDocument[] schemaDocs = Inst2Xsd.inst2xsd(xml, options);
