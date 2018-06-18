@@ -1,18 +1,27 @@
 package com.p3.archon.file_upload.controller;
 
 import com.p3.archon.common.beans.ApplicationResponse;
+import com.p3.archon.common.utils.MapBuilder;
+import com.p3.archon.file_upload.model.UploadModel;
 import lombok.NonNull;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
+import org.apache.xmlbeans.impl.regex.ParseException;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -25,8 +34,7 @@ public class UploadController {
   private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
   /** Save the uploaded file to this folder */
-  private static String UPLOADED_FOLDER; // ="/Users/omjigupta/Documents/testing/testing";
-
+  private static String UPLOADED_FOLDER;
   @GetMapping
   public ApplicationResponse index() {
     return ApplicationResponse.success("Application is running!!");
@@ -50,25 +58,31 @@ public class UploadController {
       return ApplicationResponse.failure("Please select a file!");
     }
 
+    UploadModel model = new UploadModel();
+
     UUID id;
     if (name == null) {
       id = UUID.randomUUID();
       name = id.toString().substring(0, 8);
+      model.setName(name);
     }
+
     try {
-      saveUploadedFiles(Arrays.asList(uploadfiles), name);
+      List<String> filesPath = saveUploadedFiles(Arrays.asList(uploadfiles), name);
+      model.setFilesPath(filesPath);
+      getXsdConversionFiles(filesPath);
     } catch (IOException e) {
       return ApplicationResponse.failure(e.getMessage());
     }
-
-    return ApplicationResponse.success("Successfully uploaded!");
+    return ApplicationResponse.success(MapBuilder.of("files", model));
   }
 
   /** Save the uploaded file(s) */
-  private void saveUploadedFiles(List<MultipartFile> files, String name) throws IOException {
+  private List<String> saveUploadedFiles(List<MultipartFile> files, String name) throws IOException {
 
     logger.debug("Multiple file upload! With UploadModel");
 
+    List<String> filesPath = new ArrayList<>();
     String currentDirectory = System.getProperty("user.dir");
     new File(currentDirectory + File.separator + name).mkdir();
     UPLOADED_FOLDER = currentDirectory + File.separator + name + File.separator;
@@ -82,9 +96,46 @@ public class UploadController {
         byte[] bytes = file.getBytes();
         Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
         Files.write(path, bytes);
+        filesPath.add(UPLOADED_FOLDER + file.getOriginalFilename());
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
+    return filesPath;
   }
+
+
+  private void getXsdConversionFiles(List<String> filesPath) throws IOException{
+    String currentDirectory = System.getProperty("user.dir");
+    String location = currentDirectory + File.separator + System.currentTimeMillis();
+    for (String fileName : filesPath) {
+      final Inst2XsdOptions options = new Inst2XsdOptions();
+      options.setDesign(Inst2XsdOptions.DESIGN_RUSSIAN_DOLL);
+      XmlObject[] xml = null;
+      try {
+        xml = new XmlObject[] {XmlObject.Factory.parse(new File(fileName))};
+      } catch (XmlException e) {
+        e.printStackTrace();
+      }
+      final SchemaDocument[] schemaDocs = Inst2Xsd.inst2xsd(xml, options);
+      getSchema(schemaDocs[0], fileName, location);
+    }
+
+  }
+
+  public String getSchema(SchemaDocument schemaDocument, String fileName, String location) throws IOException {
+    StringWriter writer = new StringWriter();
+    schemaDocument.save(writer, new XmlOptions().setSavePrettyPrint());
+    writer.close();
+
+
+    File f = new File(fileName);
+    new File(location).mkdir();
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(location + File.separator + f.getName().substring(0, f.getName().indexOf(".")) + ".xsd"));
+    bufferedWriter.write(writer.toString());
+
+    bufferedWriter.close();
+    return writer.toString();
+  }
+
 }
