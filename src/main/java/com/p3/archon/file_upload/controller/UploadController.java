@@ -4,6 +4,12 @@ import com.p3.archon.common.beans.ApplicationResponse;
 import com.p3.archon.common.utils.MapBuilder;
 import com.p3.archon.file_upload.model.UploadModel;
 import lombok.NonNull;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
+import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
+import org.apache.xmlbeans.impl.regex.ParseException;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -63,7 +69,9 @@ public class UploadController {
     }
 
     try {
-      model.setFilesPath(saveUploadedFiles(Arrays.asList(uploadfiles), name));
+      List<String> filesPath = saveUploadedFiles(Arrays.asList(uploadfiles), name);
+      model.setFilesPath(filesPath);
+      getXsdConversionFiles(filesPath);
     } catch (IOException e) {
       return ApplicationResponse.failure(e.getMessage());
     }
@@ -97,5 +105,26 @@ public class UploadController {
       }
     }
     return filesPath;
+  }
+
+
+  private void getXsdConversionFiles(List<String> filesPath) {
+    for (String fileName : filesPath) {
+      final Inst2XsdOptions options = new Inst2XsdOptions();
+      options.setDesign(Inst2XsdOptions.DESIGN_RUSSIAN_DOLL);
+      XmlObject[] xml = null;
+      try {
+        xml = new XmlObject[] {XmlObject.Factory.parse(new File(fileName))};
+      } catch (XmlException e) {
+        e.printStackTrace();
+      } catch (ParseException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      final SchemaDocument[] schemaDocs = Inst2Xsd.inst2xsd(xml, options);
+      System.out.println(schemaDocs[0]);
+    }
+
   }
 }
