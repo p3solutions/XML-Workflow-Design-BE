@@ -6,6 +6,7 @@ import com.p3.archon.file_upload.model.UploadModel;
 import lombok.NonNull;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
 import org.apache.xmlbeans.impl.regex.ParseException;
@@ -16,8 +17,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,8 +34,7 @@ public class UploadController {
   private final Logger logger = LoggerFactory.getLogger(UploadController.class);
 
   /** Save the uploaded file to this folder */
-  private static String UPLOADED_FOLDER; // ="/Users/omjigupta/Documents/testing/testing";
-
+  private static String UPLOADED_FOLDER; 
   @GetMapping
   public ApplicationResponse index() {
     return ApplicationResponse.success("Application is running!!");
@@ -76,8 +75,6 @@ public class UploadController {
       return ApplicationResponse.failure(e.getMessage());
     }
     return ApplicationResponse.success(MapBuilder.of("files", model));
-
-    //return ApplicationResponse.success("Successfully uploaded!");
   }
 
   /** Save the uploaded file(s) */
@@ -108,7 +105,9 @@ public class UploadController {
   }
 
 
-  private void getXsdConversionFiles(List<String> filesPath) {
+  private void getXsdConversionFiles(List<String> filesPath) throws IOException{
+    String currentDirectory = System.getProperty("user.dir");
+    String location = currentDirectory + File.separator + System.currentTimeMillis();
     for (String fileName : filesPath) {
       final Inst2XsdOptions options = new Inst2XsdOptions();
       options.setDesign(Inst2XsdOptions.DESIGN_RUSSIAN_DOLL);
@@ -123,8 +122,24 @@ public class UploadController {
         e.printStackTrace();
       }
       final SchemaDocument[] schemaDocs = Inst2Xsd.inst2xsd(xml, options);
-      System.out.println(schemaDocs[0]);
+      getSchema(schemaDocs[0], fileName, location);
     }
 
   }
+
+  public String getSchema(SchemaDocument schemaDocument, String fileName, String location) throws IOException {
+    StringWriter writer = new StringWriter();
+    schemaDocument.save(writer, new XmlOptions().setSavePrettyPrint());
+    writer.close();
+
+
+    File f = new File(fileName);
+    new File(location).mkdir();
+    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(location + File.separator + f.getName().substring(0, f.getName().indexOf(".")) + ".xsd"));
+    bufferedWriter.write(writer.toString());
+
+    bufferedWriter.close();
+    return writer.toString();
+  }
+
 }
