@@ -1,6 +1,8 @@
 package com.p3.archon.file_upload.controller;
 
 import com.p3.archon.common.beans.ApplicationResponse;
+import com.p3.archon.common.utils.MapBuilder;
+import com.p3.archon.file_upload.model.UploadModel;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -50,25 +53,31 @@ public class UploadController {
       return ApplicationResponse.success("Please select a file!");
     }
 
+    UploadModel model = new UploadModel();
+
     UUID id;
     if (name == null) {
       id = UUID.randomUUID();
       name = id.toString().substring(0, 8);
+      model.setName(name);
     }
+
     try {
-      saveUploadedFiles(Arrays.asList(uploadfiles), name);
+      model.setFilesPath(saveUploadedFiles(Arrays.asList(uploadfiles), name));
     } catch (IOException e) {
       return ApplicationResponse.failure(e.getMessage());
     }
+    return ApplicationResponse.success(MapBuilder.of("files", model));
 
-    return ApplicationResponse.success("Successfully uploaded!");
+    //return ApplicationResponse.success("Successfully uploaded!");
   }
 
   /** Save the uploaded file(s) */
-  private void saveUploadedFiles(List<MultipartFile> files, String name) throws IOException {
+  private List<String> saveUploadedFiles(List<MultipartFile> files, String name) throws IOException {
 
     logger.debug("Multiple file upload! With UploadModel");
 
+    List<String> filesPath = new ArrayList<>();
     String currentDirectory = System.getProperty("user.dir");
     new File(currentDirectory + File.separator + name).mkdir();
     UPLOADED_FOLDER = currentDirectory + File.separator + name + File.separator;
@@ -82,9 +91,11 @@ public class UploadController {
         byte[] bytes = file.getBytes();
         Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
         Files.write(path, bytes);
+        filesPath.add(UPLOADED_FOLDER + file.getOriginalFilename());
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
+    return filesPath;
   }
 }
