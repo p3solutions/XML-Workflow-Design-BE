@@ -33,10 +33,33 @@ public class UploadController {
 
   /** Save the uploaded file to this folder */
   private static String UPLOADED_FOLDER;
+  private static String JSON_UPLOADED_FOLDER;
 
   @GetMapping
   public ApplicationResponse index() {
     return ApplicationResponse.success("Application is running!!");
+  }
+
+  @CrossOrigin()
+  @PostMapping("/single")
+  public ApplicationResponse singleFileUpload(@RequestParam("file") MultipartFile file) {
+
+    logger.debug("Single file upload! ");
+    JSON_UPLOADED_FOLDER = System.getProperty("user.dir");
+
+    if (StringUtils.isEmpty(file)) {
+      return ApplicationResponse.failure("Please select a file!");
+    }
+
+    try {
+      byte[] bytes = file.getBytes();
+      Path path = Paths.get(JSON_UPLOADED_FOLDER + File.separator + file.getOriginalFilename());
+      Files.write(path, bytes);
+    } catch (IOException e) {
+      return ApplicationResponse.failure(e.getMessage());
+    }
+
+    return ApplicationResponse.success("You successfully uploaded '" + file.getOriginalFilename() + "'");
   }
 
   @CrossOrigin()
