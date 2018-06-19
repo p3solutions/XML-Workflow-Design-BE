@@ -6,6 +6,7 @@ import com.p3.archon.file_upload.controller.UploadController;
 import com.p3.archon.tree_structure.XMLFileReader;
 import com.p3.archon.tree_structure.model.TreeModel;
 import org.json.simple.JSONObject;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TreeController {
 
   @GetMapping("/files/{fileName}")
+  @CrossOrigin
   public ApplicationResponse getTreeView(@PathVariable String fileName){
     TreeModel treeModel = new TreeModel();
     treeModel.setFileName(fileName);
