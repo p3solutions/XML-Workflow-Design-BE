@@ -42,11 +42,10 @@ public class UploadController {
   @CrossOrigin()
   @PostMapping("/multi")
   public ApplicationResponse uploadFileMulti(
-      @RequestParam(value = "name", required = false) String name,
+      @RequestParam(value = "name", required = false, defaultValue = "uploadedfiles") String name,
       @RequestParam("files") MultipartFile[] uploadfiles) {
 
     logger.debug("Multiple file upload!");
-
     // Get file name
     String uploadedFileName =
         Arrays.stream(uploadfiles)
@@ -107,8 +106,9 @@ public class UploadController {
   }
 
   private void getXsdConversionFiles(List<String> filesPath) throws IOException {
-    String currentDirectory = System.getProperty("user.dir");
-    String location = currentDirectory + File.separator + System.currentTimeMillis();
+//    String currentDirectory = System.getProperty("user.dir");
+    String location = UPLOADED_FOLDER; 
+//    		currentDirectory + File.separator + System.currentTimeMillis();
     for (String fileName : filesPath) {
       final Inst2XsdOptions options = new Inst2XsdOptions();
       options.setDesign(Inst2XsdOptions.DESIGN_RUSSIAN_DOLL);
@@ -133,6 +133,7 @@ public class UploadController {
     new File(location).mkdir();
     String xsdFile =
         location + File.separator + f.getName().substring(0, f.getName().indexOf(".")) + ".xsd";
+    System.out.println(xsdFile);
     BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(xsdFile));
     bufferedWriter.write(writer.toString());
     bufferedWriter.close();
@@ -144,7 +145,8 @@ public class UploadController {
     xsdFilePathMap.forEach(
         (k, v) -> {
           System.out.println("file : " + k + " value : " + v);
-          XMLFileReader.readXml(xsdFilePathMap.get(k));
+          XMLFileReader xmlFileReader = new XMLFileReader(xsdFilePathMap.get(k));
+          xmlFileReader.readXml();
         });
   }
 }
