@@ -1,5 +1,6 @@
 package com.p3.archon.tree_structure;
 
+import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -38,6 +39,7 @@ public class XMLFileReader {
 	 */
 	public static void main(String[] args) {
 		XMLFileReader xmlReader = new XMLFileReader(
+				// "C:\\\\users\\\\E843389\\\\Downloads\\\\Uploadedfiles\\\\\\\\Notification.xml",
 				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/DeceasedCaseConfig.xml",
 				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/DeceasedCaseConfig.xsd");
 		xmlReader.readXml();
@@ -50,6 +52,8 @@ public class XMLFileReader {
 	 * @param xsdFile
 	 */
 	public XMLFileReader(String xmlFile, String xsdFile) {
+		xmlFile = xmlFile.replaceAll("\\\\+", "/");
+		xsdFile = xsdFile.replaceAll("\\\\+", "/");
 		xmlFileName = xmlFile.substring(xmlFile.lastIndexOf("/") + 1, xmlFile.length());
 		xsdFileName = xsdFile.substring(xsdFile.lastIndexOf("/") + 1, xsdFile.length());
 		this.xmlDocument = this.parseXML(xmlFile);
@@ -134,6 +138,7 @@ public class XMLFileReader {
 
 	/**
 	 * Get the children of a node
+	 * 
 	 * @param parentNode
 	 * @param childpath
 	 * @return {@link List}
@@ -145,6 +150,7 @@ public class XMLFileReader {
 
 	/**
 	 * Get JSON output of nodes
+	 * 
 	 * @param nodes
 	 * @param id
 	 * @param parentPath
@@ -160,6 +166,35 @@ public class XMLFileReader {
 			String type = node.valueOf("@type");
 			if (type != "") {
 				type = type.substring(3);
+				switch (type) {
+				case "string":
+					type = "STRING";
+					break;
+				case "int":
+					type = "INTEGER";
+					break;
+				case "byte":
+					type = "INTEGER";
+					break;
+				case "short":
+					type = "INTEGER";
+					break;
+				case "long":
+					type = "LONG";
+					break;
+				case "float":
+					type = "DOUBLE";
+					break;
+				case "datetime":
+					type = "DATETIME";
+					break;
+				case "date":
+					type = "DATE";
+					break;
+				default:
+					type = "STRING";
+					break;
+				}
 			}
 			jsonObject.put("name", node.valueOf("@name"));
 			jsonObject.put("frompath", path);
@@ -189,6 +224,7 @@ public class XMLFileReader {
 
 	/**
 	 * This Class is a POJO class
+	 * 
 	 * @author saideepak
 	 */
 	@Getter
