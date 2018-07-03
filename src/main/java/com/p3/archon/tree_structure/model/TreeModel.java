@@ -5,8 +5,6 @@ import org.json.simple.JSONObject;
 
 @Data
 public class TreeModel {
-
-  String fileName;
-
-  JSONObject fileValue;
+	String fileName;
+	JSONObject fileValue;
 }

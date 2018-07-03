@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author saideepak
+ *
+ */
 public class XMLFileReader {
 
 	private Document xmlDocument;
@@ -25,40 +29,52 @@ public class XMLFileReader {
 	// Path to determine if there is a child
 	private String sequenceChildPath = "xs:complexType/xs:sequence/xs:element";
 	private String choiceChildPath = "xs:complexType/xs:choice/xs:element";
+	private String xmlFileName = "";
+	@SuppressWarnings("unused")
+	private String xsdFileName = "";
 
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		XMLFileReader xmlReader = new XMLFileReader(
 				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/DeceasedCaseConfig.xml",
 				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/DeceasedCaseConfig.xsd");
 		xmlReader.readXml();
-		// XMLFileReader.readXml("/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/CFW_DeceasedCase.xsd");
-		// XMLFileReader fileReader = new XMLFileReader();
-		// try {
-		// fileReader.getXpath("BankNumber",
-		// "/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/CFW_DeceasedCase.xml");
-		// } catch (DocumentException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
 	}
 
 	/**
+	 * Constructor for parsing both XML and XSD
 	 * 
+	 * @param xmlFile
+	 * @param xsdFile
 	 */
-	public XMLFileReader(String xml, String xsd) {
-		this.xmlDocument = this.parseXML(xml);
-		this.xsdDocument = this.parseXML(xsd);
+	public XMLFileReader(String xmlFile, String xsdFile) {
+		xmlFileName = xmlFile.substring(xmlFile.lastIndexOf("/") + 1, xmlFile.length());
+		xsdFileName = xsdFile.substring(xsdFile.lastIndexOf("/") + 1, xsdFile.length());
+		this.xmlDocument = this.parseXML(xmlFile);
+		this.xsdDocument = this.parseXML(xsdFile);
 	}
 
+	/**
+	 * Constructor for parsing either XML or XSD
+	 * 
+	 * @param file
+	 */
 	public XMLFileReader(String file) {
 		if (file.endsWith(".xml")) {
+			xmlFileName = file.substring(file.lastIndexOf("/") + 1, file.length());
 			this.xmlDocument = this.parseXML(file);
 		} else if (file.endsWith(".xsd")) {
+			xsdFileName = file.substring(file.lastIndexOf("/") + 1, file.length());
 			this.xsdDocument = this.parseXML(file);
 		}
 	}
 
+	/**
+	 * @param xml
+	 * @return {@link Document}
+	 */
 	private Document parseXML(String xml) {
 		File inputFile = new File(xml);
 		SAXReader reader = new SAXReader();
@@ -67,21 +83,29 @@ public class XMLFileReader {
 			document = reader.read(inputFile);
 			return document;
 		} catch (DocumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
 	}
 
+	/**
+	 * @param parent
+	 * @param elementName
+	 * @return {@link String}
+	 * @throws DocumentException
+	 */
 	private String getXpath(String parent, String elementName) throws DocumentException {
 		Node node = xmlDocument.selectSingleNode(parent + "/" + elementName);
 		if (node != null) {
-			System.out.println(node.getPath());
 			return node.getPath();
 		}
 		return null;
 	}
 
+	/**
+	 * @return {@link JSONObject}
+	 */
+	@SuppressWarnings("unchecked")
 	public JSONObject readXml() {
 		try {
 			Document document = this.xsdDocument;
@@ -91,7 +115,7 @@ public class XMLFileReader {
 			String namespace = rootElement.getNamespaceURI();
 
 			XPath xpath = new DefaultXPath("/xs:schema/xs:element");
-			// Setup Map for storing namepsaces
+			// Setup Map for storing namespaces
 			Map<String, String> namespaces = new HashMap<String, String>();
 			namespaces.put("xs", namespace);
 			xpath.setNamespaceURIs(namespaces);
@@ -101,7 +125,6 @@ public class XMLFileReader {
 			List<JSONObject> jsonList = jsonReturns.getJsonList();
 			JSONObject treeJson = new JSONObject();
 			treeJson.put("tree", jsonList);
-			System.out.println("treejson ---->  " + treeJson);
 			return treeJson;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,11 +132,26 @@ public class XMLFileReader {
 		}
 	}
 
+	/**
+	 * Get the children of a node
+	 * @param parentNode
+	 * @param childpath
+	 * @return {@link List}
+	 */
 	private List<Node> getchildren(Node parentNode, String childpath) {
 		List<Node> nodes = parentNode.selectNodes(childpath);
 		return nodes;
 	}
 
+	/**
+	 * Get JSON output of nodes
+	 * @param nodes
+	 * @param id
+	 * @param parentPath
+	 * @return {@link JSONReturns}
+	 * @throws DocumentException
+	 */
+	@SuppressWarnings("unchecked")
 	private JSONReturns getJson(List<Node> nodes, int id, String parentPath) throws DocumentException {
 		List<JSONObject> jsonList = new ArrayList<JSONObject>();
 		for (Node node : nodes) {
@@ -127,10 +165,11 @@ public class XMLFileReader {
 			jsonObject.put("frompath", path);
 			jsonObject.put("datatype", type);
 			jsonObject.put("search", false);
-			jsonObject.put("result", false);
+			jsonObject.put("result", true);
+			jsonObject.put("filename", xmlFileName);
 			if (node.hasContent()) {
 				List<Node> childNode = this.getchildren(node, this.sequenceChildPath);
-				if(childNode.size()==0) {
+				if (childNode.size() == 0) {
 					childNode = this.getchildren(node, this.choiceChildPath);
 				}
 				JSONReturns childJsonReturns = this.getJson(childNode, id, path);
@@ -148,6 +187,10 @@ public class XMLFileReader {
 		return jsonReturns;
 	}
 
+	/**
+	 * This Class is a POJO class
+	 * @author saideepak
+	 */
 	@Getter
 	@Setter
 	private class JSONReturns {
