@@ -28,7 +28,6 @@ public class TreeController {
   private JSONObject treeStructureCreation(String fileName) {
     for (String key : UploadController.xsdFilePathMap.keySet()) {
       if(fileName.equals(key)){
-        System.out.println("Hello "+ UploadController.xsdFilePathMap.get(key));
         XMLFileReader xmlFileReader = new XMLFileReader(UploadController.xsdFilePathMap.get(key).replaceFirst(".xsd", ".xml"),UploadController.xsdFilePathMap.get(key));
         return xmlFileReader.readXml();
       }
