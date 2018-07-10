@@ -1,5 +1,6 @@
 package com.p3.archon.common.utils;
 
+import com.p3.archon.common.beans.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;

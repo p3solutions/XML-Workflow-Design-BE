@@ -1,4 +1,4 @@
-package com.p3.archon.common.utils;
+package com.p3.archon.common.beans;
 
 import lombok.Getter;
 import lombok.Setter;
