@@ -12,16 +12,25 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PdiSchemaGenerator {
+/**
+ * Implementer of {@link PdiSchemaService}
+ *
+ * @author omjigupta
+ */
+@Service("pdiSchemaService")
+public class PdiSchemaServiceImpl implements PdiSchemaService{
   private static List<FinalChildren> resultList = new ArrayList<>();
   private static List<Pair> xpathList = new ArrayList<>();
+  private static String xsdFile = "pdi-schema.xsd";
 
-  public static void generator(String fileName) {
+  @Override
+  public void generator(String fileName) {
     try {
       readJsonWithObjectMapper(fileName);
     } catch (IOException e) {
@@ -29,13 +38,13 @@ public class PdiSchemaGenerator {
     }
 
     try {
-      getFinalXsd("pdi-schema.xsd");
+      getFinalXsd();
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
-  public static void readJsonWithObjectMapper(String fileName) throws IOException {
+  private void readJsonWithObjectMapper(String fileName) throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     FileModel result = objectMapper.readValue(new File(fileName), FileModel.class);
 
@@ -45,12 +54,9 @@ public class PdiSchemaGenerator {
   }
 
 
-  public static void getFinalXsd(String finalXsd) throws Exception {
-    ArrayList<Pair> configXpathList = new ArrayList<Pair>();
+  private void getFinalXsd() throws Exception {
 
-    for (Pair xpath : xpathList) {
-      configXpathList.add(xpath);
-    }
+    ArrayList<Pair> configXpathList = new ArrayList<>(xpathList);
 
     String tempXml = "temp.xml";
     XPathUtils.createXML(configXpathList, tempXml);
@@ -58,14 +64,14 @@ public class PdiSchemaGenerator {
     try {
       File file = new File(tempXml);
       BufferedReader reader = new BufferedReader(new FileReader(file));
-      String line = "";
-      String oldtext = "";
+      String line;
+      StringBuilder oldtext = new StringBuilder();
       while ((line = reader.readLine()) != null) {
-        oldtext += line + "\r\n";
+        oldtext.append(line).append("\r\n");
       }
       reader.close();
       // replace a word in a file
-      String startText = oldtext.replaceAll("<pagedata>", "<RECORDs>\n<RECORD>\n<pagedata>");
+      String startText = oldtext.toString().replaceAll("<pagedata>", "<RECORDs>\n<RECORD>\n<pagedata>");
       String finalText = startText.replaceAll("</pagedata>", "</pagedata>\n</RECORD>\n</RECORDs>");
 
       FileWriter writer = new FileWriter(tempXml);
@@ -75,33 +81,33 @@ public class PdiSchemaGenerator {
       ioe.printStackTrace();
     }
 
-    getXmlToXsd(tempXml, finalXsd);
+    getXmlToXsd(tempXml, xsdFile);
 
     //Temp xml deletion
     File file1 = new File(tempXml);
     file1.deleteOnExit();
 
     try {
-      File file = new File(finalXsd);
+      File file = new File(xsdFile);
       BufferedReader reader = new BufferedReader(new FileReader(file));
-      String line = "";
-      String oldtext = "";
+      String line;
+      StringBuilder stringBuilder = new StringBuilder();
       while ((line = reader.readLine()) != null) {
-        oldtext += line + "\r\n";
+        stringBuilder.append(line).append("\r\n");
       }
       reader.close();
       // replace a word in a file
-      String newtext = oldtext.replaceAll("xs:float", "xs:double");
+      String text = stringBuilder.toString().replaceAll("xs:float", "xs:double");
 
-      FileWriter writer = new FileWriter(finalXsd);
-      writer.write(newtext);
+      FileWriter writer = new FileWriter(xsdFile);
+      writer.write(text);
       writer.close();
     } catch (IOException ioe) {
       ioe.printStackTrace();
     }
   }
 
-  private static void getFinalJson(String name, List<Children> nodeList) {
+  private void getFinalJson(String name, List<Children> nodeList) {
 
     for (Children nodes : nodeList) {
       FinalChildren mNode = new FinalChildren();
@@ -128,7 +134,7 @@ public class PdiSchemaGenerator {
   }
 
 
-  private static void getIADatatype(FinalChildren mNode) {
+  private void getIADatatype(FinalChildren mNode) {
     Pair nv;
     if (mNode.getDatatype().equalsIgnoreCase(Datatypes.INT)) {
       nv = new Pair(mNode.getTopath(), "2147483647");
@@ -157,7 +163,7 @@ public class PdiSchemaGenerator {
   }
 
 
-  public static void getXmlToXsd(String xmlFileName, String xsdFileName) throws Exception {
+  private void getXmlToXsd(String xmlFileName, String xsdFileName) throws Exception {
 
     final Inst2XsdOptions options = new Inst2XsdOptions();
     options.setDesign(Inst2XsdOptions.DESIGN_VENETIAN_BLIND);
