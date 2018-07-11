@@ -9,9 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api")
@@ -19,22 +16,14 @@ public class XsdController {
 
   @Autowired
   PdiSchemaService pdiSchemaService;
-
-  private static String JSON_UPLOADED_FOLDER;
-
+  
   @CrossOrigin()
-  @PostMapping("/files/schema")
+  @GetMapping("/files/schema/{file}")
   public StreamingResponseBody getPdiSchemaFile(@RequestParam("file") MultipartFile file) throws IOException {
 
-    JSON_UPLOADED_FOLDER = System.getProperty("user.dir");
-
-    byte[] bytes = file.getBytes();
-    Path path = Paths.get(JSON_UPLOADED_FOLDER + File.separator + file.getOriginalFilename());
-    Files.write(path, bytes);
-
-    pdiSchemaService.generator(JSON_UPLOADED_FOLDER + File.separator + file.getOriginalFilename());
-
     String currentDirectory = System.getProperty("user.dir");
+
+    pdiSchemaService.generator(currentDirectory + File.separator + file.getOriginalFilename());
 
     String fileName = "pdi-schema.xsd";
 
