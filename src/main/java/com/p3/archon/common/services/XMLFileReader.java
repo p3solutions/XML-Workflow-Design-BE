@@ -1,6 +1,5 @@
-package com.p3.archon.tree_structure;
+package com.p3.archon.common.services;
 
-import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -10,8 +9,8 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.xpath.DefaultXPath;
 import org.json.simple.JSONObject;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.p3.archon.common.beans.JSONReturns;
+import com.p3.archon.common.utils.Utility;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,9 +29,12 @@ public class XMLFileReader {
 	// Path to determine if there is a child
 	private String sequenceChildPath = "xs:complexType/xs:sequence/xs:element";
 	private String choiceChildPath = "xs:complexType/xs:choice/xs:element";
+	private String attributeChildPath1 = "xs:complexType/xs:simpleContent/xs:extension/xs:attribute";
+	private String attributeChildPath2 = "xs:complexType/xs:attribute";
 	private String xmlFileName = "";
 	@SuppressWarnings("unused")
 	private String xsdFileName = "";
+	private Utility utility = new Utility();
 
 	/**
 	 * @param args
@@ -40,8 +42,8 @@ public class XMLFileReader {
 	public static void main(String[] args) {
 		XMLFileReader xmlReader = new XMLFileReader(
 				// "C:\\\\users\\\\E843389\\\\Downloads\\\\Uploadedfiles\\\\\\\\Notification.xml",
-				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/DeceasedCaseConfig.xml",
-				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/DeceasedCaseConfig.xsd");
+				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/CFW_DeceasedCase.xml",
+				"/Users/saideepak/Projects/JPMC/JPMC_-_XML_Files/CFW_DeceasedCase.xsd");
 		xmlReader.readXml();
 	}
 
@@ -52,8 +54,8 @@ public class XMLFileReader {
 	 * @param xsdFile
 	 */
 	public XMLFileReader(String xmlFile, String xsdFile) {
-		xmlFile = xmlFile.replaceAll("\\\\+", "/");
-		xsdFile = xsdFile.replaceAll("\\\\+", "/");
+		xmlFile = utility.changeURLIfNeeded(xmlFile);
+		xsdFile = utility.changeURLIfNeeded(xsdFile);
 		xmlFileName = xmlFile.substring(xmlFile.lastIndexOf("/") + 1, xmlFile.length());
 		xsdFileName = xsdFile.substring(xsdFile.lastIndexOf("/") + 1, xsdFile.length());
 		this.xmlDocument = this.parseXML(xmlFile);
@@ -66,6 +68,7 @@ public class XMLFileReader {
 	 * @param file
 	 */
 	public XMLFileReader(String file) {
+		file = utility.changeURLIfNeeded(file);
 		if (file.endsWith(".xml")) {
 			xmlFileName = file.substring(file.lastIndexOf("/") + 1, file.length());
 			this.xmlDocument = this.parseXML(file);
@@ -79,7 +82,7 @@ public class XMLFileReader {
 	 * @param xml
 	 * @return {@link Document}
 	 */
-	private Document parseXML(String xml) {
+	public Document parseXML(String xml) {
 		File inputFile = new File(xml);
 		SAXReader reader = new SAXReader();
 		Document document;
@@ -98,7 +101,7 @@ public class XMLFileReader {
 	 * @return {@link String}
 	 * @throws DocumentException
 	 */
-	private String getXpath(String parent, String elementName) throws DocumentException {
+	public String getXpath(String parent, String elementName) throws DocumentException {
 		Node node = xmlDocument.selectSingleNode(parent + "/" + elementName);
 		if (node != null) {
 			return node.getPath();
@@ -143,7 +146,7 @@ public class XMLFileReader {
 	 * @param childpath
 	 * @return {@link List}
 	 */
-	private List<Node> getchildren(Node parentNode, String childpath) {
+	public List<Node> getchildren(Node parentNode, String childpath) {
 		List<Node> nodes = parentNode.selectNodes(childpath);
 		return nodes;
 	}
@@ -162,7 +165,9 @@ public class XMLFileReader {
 		List<JSONObject> jsonList = new ArrayList<JSONObject>();
 		for (Node node : nodes) {
 			JSONObject jsonObject = new JSONObject();
-			String path = this.getXpath(parentPath, node.valueOf("@name"));
+			String name = node.valueOf("@name");
+			String path = "";
+			path = this.getXpath(parentPath, name);
 			String type = node.valueOf("@type");
 			if (type != "") {
 				type = type.substring(3);
@@ -196,18 +201,37 @@ public class XMLFileReader {
 					break;
 				}
 			}
-			jsonObject.put("name", node.valueOf("@name"));
+			jsonObject.put("name", name);
 			jsonObject.put("frompath", path);
 			jsonObject.put("datatype", type);
 			jsonObject.put("search", false);
 			jsonObject.put("result", true);
+			jsonObject.put("minoccurance", "0");
+			jsonObject.put("maxoccurance", "unbound");
 			jsonObject.put("filename", xmlFileName);
+
 			if (node.hasContent()) {
-				List<Node> childNode = this.getchildren(node, this.sequenceChildPath);
-				if (childNode.size() == 0) {
-					childNode = this.getchildren(node, this.choiceChildPath);
+//				Node attributeNode = node.selectSingleNode(attributeChildPath1);
+				// CustomElement customElement = null;
+				// if (attributeNode == null) {
+				// attributeNode = node.selectSingleNode(attributeChildPath2);
+				// }
+				// if (attributeNode != null) {
+				// customElement = (CustomElement) attributeNode;
+				// customElement.setAttribute(true);
+				// childNodes.add(customElement);
+				// }
+				//
+				// if (childNodes.size() != 0) {
+				// childNodes.addAll(this.getchildren(node, this.sequenceChildPath));
+				// } else {
+				// childNodes = this.getchildren(node, this.sequenceChildPath);
+				// }
+				List<Node> childNodes = this.getchildren(node, this.sequenceChildPath);
+				if (childNodes.size() == 0) {
+					childNodes = this.getchildren(node, this.choiceChildPath);
 				}
-				JSONReturns childJsonReturns = this.getJson(childNode, id, path);
+				JSONReturns childJsonReturns = this.getJson(childNodes, id, path);
 				List<JSONObject> childJsonList = childJsonReturns.getJsonList();
 				jsonObject.put("children", childJsonList);
 				id = childJsonReturns.getId();
@@ -220,17 +244,5 @@ public class XMLFileReader {
 		jsonReturns.setJsonList(jsonList);
 		jsonReturns.setId(id);
 		return jsonReturns;
-	}
-
-	/**
-	 * This Class is a POJO class
-	 * 
-	 * @author saideepak
-	 */
-	@Getter
-	@Setter
-	private class JSONReturns {
-		private int id;
-		private List<JSONObject> jsonList;
 	}
 }

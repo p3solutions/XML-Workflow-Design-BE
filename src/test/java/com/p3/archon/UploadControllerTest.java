@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package com.p3.archon;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,19 +17,24 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.p3.archon.common.constants.APIResponseMessages;
 import com.p3.archon.file_upload.controller.UploadController;
 
+/**
+ * @author saideepak
+ *
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ApplicationTests {
+public class UploadControllerTest {
 	@LocalServerPort
 	private int port;
 
 	@Autowired
 	private TestRestTemplate restTemplate;
 
-	@Test
-	public void shouldReturnDefaultMessage() throws Exception {
-		assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/", String.class))
-				.contains(APIResponseMessages.APPLICATION_RESPONSE);
-	}
+	@Autowired
+	private UploadController uploadController;
 
+	@Test
+	public void contextLoads() throws Exception {
+		assertThat(uploadController).isNotNull();
+	}
 }
