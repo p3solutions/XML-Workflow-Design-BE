@@ -1,9 +1,9 @@
 package com.p3.archon.tree_structure.Controller;
 
 import com.p3.archon.common.beans.ApplicationResponse;
+import com.p3.archon.common.services.XMLFileReader;
 import com.p3.archon.common.utils.MapBuilder;
 import com.p3.archon.file_upload.controller.UploadController;
-import com.p3.archon.tree_structure.XMLFileReader;
 import com.p3.archon.tree_structure.model.TreeModel;
 import org.json.simple.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;

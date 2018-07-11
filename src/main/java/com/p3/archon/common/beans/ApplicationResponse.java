@@ -1,6 +1,6 @@
 package com.p3.archon.common.beans;
 
-import com.p3.archon.common.constants.ApiFailureMessages;
+import com.p3.archon.common.constants.APIFailureMessages;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
@@ -43,7 +43,7 @@ public final class ApplicationResponse {
   public static ApplicationResponse failure(final String error, final HttpStatus httpStatus) {
     final ApplicationResponse response = new ApplicationResponse();
     final String errorMessage =
-        StringUtils.isEmpty(error) ? ApiFailureMessages.TECHNICAL_ERROR : error;
+        StringUtils.isEmpty(error) ? APIFailureMessages.TECHNICAL_ERROR : error;
     response.setErrorMessage(errorMessage);
     response.setErrorMessage(error);
     response.setSuccess(false);
