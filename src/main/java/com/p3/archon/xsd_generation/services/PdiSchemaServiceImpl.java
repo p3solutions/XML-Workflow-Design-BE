@@ -124,6 +124,10 @@ public class PdiSchemaServiceImpl implements PdiSchemaService{
       mNode.setFilename(nodes.getFilename());
       mNode.setMinoccurance(nodes.getMinoccurance());
       mNode.setMaxoccurance(nodes.getMaxoccurance());
+      mNode.setCondition(nodes.getCondition());
+      mNode.setConditionpath(nodes.getConditionpath());
+      mNode.setConditionvalue(nodes.getConditionvalue());
+      mNode.setIscondition(nodes.isIscondition());
 
       if (nodes.getChildren().size() > 0) {
         getFinalJson(name + "/" + nodes.getName(), nodes.getChildren());
