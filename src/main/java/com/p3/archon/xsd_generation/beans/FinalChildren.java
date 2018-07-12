@@ -19,6 +19,10 @@ public class FinalChildren {
   String filename;
   String minoccurance;
   String maxoccurance;
+  String conditionvalue;
+  String conditionpath;
+  String condition;
+  boolean iscondition;
 
   @Override
   public String toString() {
@@ -33,6 +37,10 @@ public class FinalChildren {
             ", filename='" + filename + '\'' +
             ", minoccurance='" + minoccurance + '\'' +
             ", maxoccurance='" + maxoccurance + '\'' +
+            ", conditionvalue='" + conditionvalue + '\'' +
+            ", conditionpath='" + conditionpath + '\'' +
+            ", condition='" + condition + '\'' +
+            ", iscondition=" + iscondition +
             '}';
   }
 }

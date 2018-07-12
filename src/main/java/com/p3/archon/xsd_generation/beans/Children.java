@@ -27,8 +27,6 @@ public class Children {
   String conditionpath;
   String condition;
   boolean iscondition;
-  
-  
 
   @Override
   public String toString() {
