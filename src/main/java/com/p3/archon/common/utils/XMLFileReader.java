@@ -208,6 +208,7 @@ public class XMLFileReader {
 			jsonObject.put("minoccurance", "0");
 			jsonObject.put("maxoccurance", "unbound");
 			jsonObject.put("conditionpath", "");
+			jsonObject.put("iscondition", false);
 			jsonObject.put("condition", "");
 			jsonObject.put("conditionvalue", "");
 			jsonObject.put("filename", xmlFileName);
