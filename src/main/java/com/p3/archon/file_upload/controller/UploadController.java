@@ -3,8 +3,8 @@ package com.p3.archon.file_upload.controller;
 import com.p3.archon.common.beans.ApplicationResponse;
 import com.p3.archon.common.exception.StorageFileNotFoundException;
 import com.p3.archon.common.services.StorageService;
-import com.p3.archon.common.services.XMLFileReader;
 import com.p3.archon.common.utils.MapBuilder;
+import com.p3.archon.common.utils.XMLFileReader;
 import com.p3.archon.file_upload.model.UploadModel;
 
 import org.apache.xmlbeans.XmlException;

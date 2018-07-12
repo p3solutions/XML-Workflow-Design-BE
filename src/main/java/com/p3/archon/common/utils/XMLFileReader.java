@@ -1,4 +1,4 @@
-package com.p3.archon.common.services;
+package com.p3.archon.common.utils;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -10,7 +10,6 @@ import org.dom4j.xpath.DefaultXPath;
 import org.json.simple.JSONObject;
 
 import com.p3.archon.common.beans.JSONReturns;
-import com.p3.archon.common.utils.Utility;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -208,6 +207,10 @@ public class XMLFileReader {
 			jsonObject.put("result", true);
 			jsonObject.put("minoccurance", "0");
 			jsonObject.put("maxoccurance", "unbound");
+			jsonObject.put("conditionpath", "");
+			jsonObject.put("iscondition", false);
+			jsonObject.put("condition", "");
+			jsonObject.put("conditionvalue", "");
 			jsonObject.put("filename", xmlFileName);
 
 			if (node.hasContent()) {
