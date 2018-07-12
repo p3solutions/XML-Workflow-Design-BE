@@ -1,4 +1,4 @@
-package com.p3.archon.xsd_generation;
+package com.p3.archon.xsd_generation.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.p3.archon.common.beans.Pair;
@@ -7,6 +7,7 @@ import com.p3.archon.common.utils.XPathUtils;
 import com.p3.archon.xsd_generation.beans.Children;
 import com.p3.archon.xsd_generation.beans.FileModel;
 import com.p3.archon.xsd_generation.beans.FinalChildren;
+
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
@@ -121,6 +122,8 @@ public class PdiSchemaServiceImpl implements PdiSchemaService{
       mNode.setResult(nodes.isResult());
       mNode.setId(nodes.getId());
       mNode.setFilename(nodes.getFilename());
+      mNode.setMinoccurance(nodes.getMinoccurance());
+      mNode.setMaxoccurance(nodes.getMaxoccurance());
 
       if (nodes.getChildren().size() > 0) {
         getFinalJson(name + "/" + nodes.getName(), nodes.getChildren());

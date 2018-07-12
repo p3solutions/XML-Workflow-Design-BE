@@ -17,6 +17,8 @@ public class FinalChildren {
   boolean result;
   Long id;
   String filename;
+  String minoccurance;
+  String maxoccurance;
 
   @Override
   public String toString() {
@@ -29,6 +31,8 @@ public class FinalChildren {
             ", result=" + result +
             ", id=" + id +
             ", filename='" + filename + '\'' +
+            ", minoccurance='" + minoccurance + '\'' +
+            ", maxoccurance='" + maxoccurance + '\'' +
             '}';
   }
 }

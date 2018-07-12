@@ -1,4 +1,4 @@
-package com.p3.archon.xsd_generation;
+package com.p3.archon.xsd_generation.services;
 
 import lombok.NonNull;
 

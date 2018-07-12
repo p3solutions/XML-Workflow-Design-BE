@@ -20,7 +20,15 @@ public class Children {
   Long id;
   String filename;
   List<Children> children = new ArrayList<Children>();
+  String minoccurance;
+  String maxoccurance;
   String hasChildren;
+  String conditionvalue;
+  String conditionpath;
+  String condition;
+  boolean iscondition;
+  
+  
 
   @Override
   public String toString() {
@@ -33,7 +41,13 @@ public class Children {
             ", id=" + id +
             ", filename='" + filename + '\'' +
             ", children=" + children +
+            ", minoccurance='" + minoccurance + '\'' +
+            ", maxoccurance='" + maxoccurance + '\'' +
             ", hasChildren='" + hasChildren + '\'' +
+            ", conditionvalue='" + conditionvalue + '\'' +
+            ", conditionpath='" + conditionpath + '\'' +
+            ", condition='" + condition + '\'' +
+            ", iscondition='" + iscondition + '\'' +
             '}';
   }
 }
