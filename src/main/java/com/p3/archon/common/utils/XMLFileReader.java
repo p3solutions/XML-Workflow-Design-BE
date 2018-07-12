@@ -206,7 +206,7 @@ public class XMLFileReader {
 			jsonObject.put("search", false);
 			jsonObject.put("result", true);
 			jsonObject.put("minoccurance", "0");
-			jsonObject.put("maxoccurance", "unbound");
+			jsonObject.put("maxoccurance", "");
 			jsonObject.put("conditionpath", "");
 			jsonObject.put("iscondition", false);
 			jsonObject.put("condition", "");

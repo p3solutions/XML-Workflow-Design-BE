@@ -64,3 +64,6 @@ app.log.*.gz
 
 # Project Specific
 uploadedfiles/
+upload-dir/
+pdi-schema.xsd
+temp.xml

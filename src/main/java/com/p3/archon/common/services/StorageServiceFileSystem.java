@@ -5,9 +5,13 @@ package com.p3.archon.common.services;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.p3.archon.common.exception.StorageException;
@@ -62,16 +67,22 @@ public class StorageServiceFileSystem implements StorageService {
 	 * multipart.MultipartFile)
 	 */
 	@Override
-	public void store(MultipartFile file) {
-		try {
-			if (file.isEmpty()) {
-				throw new StorageFileNotFoundException("File is empty:" + file.getOriginalFilename());
-			}
-			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
+	public void store(MultipartFile[] files) {
+		if (files.length == 0) {
+			throw new StorageFileNotFoundException("Select atleast one file!");
+		}
+		for (MultipartFile file : files) {
+			try {
+				if (file.isEmpty()) {
+					throw new StorageFileNotFoundException("File is empty:" + file.getOriginalFilename());
+				}
+				Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()),
+						StandardCopyOption.REPLACE_EXISTING);
 
-		} catch (IOException e) {
-			throw new StorageFileNotFoundException(
-					"Unable to save file. Please Try again later:" + file.getOriginalFilename(), e);
+			} catch (IOException e) {
+				throw new StorageFileNotFoundException(
+						"Unable to save file. Please Try again later:" + file.getOriginalFilename(), e);
+			}
 		}
 	}
 
@@ -129,6 +140,29 @@ public class StorageServiceFileSystem implements StorageService {
 	@Override
 	public void deleteAll() {
 		FileSystemUtils.deleteRecursively(rootLocation.toFile());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.p3.archon.common.services.StorageService#store(org.springframework.web.
+	 * multipart.MultipartFile)
+	 */
+	@Override
+	public void store(MultipartFile file) {
+		try {
+			if (file.isEmpty()) {
+				throw new StorageFileNotFoundException("File is empty:" + file.getOriginalFilename());
+			}
+			Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()),
+					StandardCopyOption.REPLACE_EXISTING);
+
+		} catch (IOException e) {
+			throw new StorageFileNotFoundException(
+					"Unable to save file. Please Try again later:" + file.getOriginalFilename(), e);
+		}
+
 	}
 
 }

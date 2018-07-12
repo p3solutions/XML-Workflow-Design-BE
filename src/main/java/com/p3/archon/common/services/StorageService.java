@@ -24,6 +24,12 @@ public interface StorageService {
 	 * @param file
 	 */
 	void store(MultipartFile file);
+	
+	/**
+	 * Store file in a location
+	 * @param file
+	 */
+	void store(MultipartFile[] file);
 
 	/**
 	 * Load All files from a location 

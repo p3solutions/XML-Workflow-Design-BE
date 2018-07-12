@@ -21,6 +21,14 @@ public class Children {
   String filename;
   List<Children> children = new ArrayList<Children>();
   String hasChildren;
+  String conditionvalue;
+  String conditionpath;
+  String condition;
+  String minoccurance;
+  String maxoccurance;
+  boolean iscondition;
+  
+  
 
   @Override
   public String toString() {
@@ -34,6 +42,12 @@ public class Children {
             ", filename='" + filename + '\'' +
             ", children=" + children +
             ", hasChildren='" + hasChildren + '\'' +
+            ", conditionvalue='" + conditionvalue + '\'' +
+            ", conditionpath='" + conditionpath + '\'' +
+            ", condition='" + condition + '\'' +
+            ", minoccurance='" + minoccurance + '\'' +
+            ", maxoccurance='" + maxoccurance + '\'' +
+            ", iscondition='" + iscondition + '\'' +
             '}';
   }
 }

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -27,10 +28,12 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
@@ -55,13 +58,13 @@ public class UploadController {
 	 */
 	@GetMapping("/list")
 	public String listUploadedFiles(Model model) throws IOException {
-		model.addAttribute("files",
-				storageService.loadAll()
-						.map(path -> MvcUriComponentsBuilder
-								.fromMethodName(UploadController.class, "serveFile", path.getFileName().toString())
-								.build().toString())
-						.collect(Collectors.toList()));
-		return "uploadForm";
+		String files = storageService.loadAll().map(path -> path.getFileName().toString())
+				.collect(Collectors.joining(" , "));
+		// MvcUriComponentsBuilder
+		// .fromMethodName(UploadController.class, "serveFile",
+		// path.getFileName().toString())
+		// .build().toString()).collect(Collectors.joining(" , "));
+		return files;
 	}
 
 	/**
@@ -79,18 +82,16 @@ public class UploadController {
 	}
 
 	/**
-	 * @param file
+	 * @param files
 	 * @param redirectAttributes
 	 * @return
 	 */
 	@PostMapping("/upload")
-	public String handleFileUpload(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
-
-		storageService.store(file);
-		redirectAttributes.addFlashAttribute("message",
-				"You successfully uploaded " + file.getOriginalFilename() + "!");
-
-		return "redirect:/";
+	public ApplicationResponse handleFileUpload(@RequestParam("files") MultipartFile[] files) {
+		storageService.store(files);
+		return ApplicationResponse.success("You successfully uploaded "
+				+ Arrays.stream(files).map(file -> file.getOriginalFilename()).collect(Collectors.joining(" , "))
+				+ "!");
 	}
 
 	/**
@@ -98,8 +99,8 @@ public class UploadController {
 	 * @return
 	 */
 	@ExceptionHandler(StorageFileNotFoundException.class)
-	public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
-		return ResponseEntity.notFound().build();
+	public ApplicationResponse handleStorageFileNotFound(StorageFileNotFoundException exc) {
+		return ApplicationResponse.failure(exc.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 
 	public static HashMap<String, String> xsdFilePathMap = new HashMap<>();
