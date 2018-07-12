@@ -1,43 +1,31 @@
 package com.p3.archon.xsd_generation;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 
 @RestController
-@RequestMapping("/api/download")
+@RequestMapping("/api")
 public class XsdController {
 
   @Autowired
   PdiSchemaService pdiSchemaService;
-
-  @GetMapping("/files/schema/{filename}")
-  public StreamingResponseBody getPdiSchemaFile(@PathVariable("filename") String fileName, HttpServletResponse response) throws IOException {
-
-    pdiSchemaService.generator(fileName);
+  
+  @CrossOrigin()
+  @GetMapping("/files/schema/{file}")
+  public StreamingResponseBody getPdiSchemaFile(@RequestParam("file") MultipartFile file) throws IOException {
 
     String currentDirectory = System.getProperty("user.dir");
 
-    /**
-     * get the mimetype
-     */
-    String mimeType = URLConnection.guessContentTypeFromName(fileName);
-    if (mimeType == null) {
-      mimeType = "application/octet-stream";
-    }
+    pdiSchemaService.generator(currentDirectory + File.separator + file.getOriginalFilename());
 
-    response.setContentType(mimeType);
-    response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+    String fileName = "pdi-schema.xsd";
 
     InputStream inputStream = new FileInputStream(new File(currentDirectory + File.separator+ fileName));
 
