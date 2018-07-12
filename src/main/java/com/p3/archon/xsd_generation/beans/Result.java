@@ -15,6 +15,7 @@ public class Result {
   Long id;
   String name;
   List<Children> children = new ArrayList<Children>();
+  String hasChildren;
 
   @Override
   public String toString() {
@@ -22,6 +23,7 @@ public class Result {
             "id=" + id +
             ", name='" + name + '\'' +
             ", children=" + children +
+            ", hasChildren='" + hasChildren + '\'' +
             '}';
   }
 }
