@@ -16,7 +16,8 @@ public class XsdController {
 
   @Autowired
   PdiSchemaService pdiSchemaService;
-  
+
+
   @CrossOrigin()
   @GetMapping("/files/schema/{file}")
   public StreamingResponseBody getPdiSchemaFile(@RequestParam("file") MultipartFile file) throws IOException {

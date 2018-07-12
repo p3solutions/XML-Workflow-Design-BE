@@ -20,6 +20,8 @@ public class Children {
   Long id;
   String filename;
   List<Children> children = new ArrayList<Children>();
+  String minoccurance;
+  String maxoccurance;
   String hasChildren;
 
   @Override
@@ -33,6 +35,8 @@ public class Children {
             ", id=" + id +
             ", filename='" + filename + '\'' +
             ", children=" + children +
+            ", minoccurance='" + minoccurance + '\'' +
+            ", maxoccurance='" + maxoccurance + '\'' +
             ", hasChildren='" + hasChildren + '\'' +
             '}';
   }
