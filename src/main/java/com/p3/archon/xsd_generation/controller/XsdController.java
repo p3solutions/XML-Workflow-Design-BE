@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.p3.archon.common.services.StorageService;
-import com.p3.archon.file_upload.controller.UploadController;
 import com.p3.archon.xsd_generation.services.PdiSchemaService;
 
 import java.io.File;
@@ -50,7 +49,7 @@ public class XsdController {
 			int nRead;
 			byte[] data = new byte[1024];
 			while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-				System.out.println("Writing some bytes..");
+				logger.info("Writing some bytes..");
 				outputStream.write(data, 0, nRead);
 			}
 		};

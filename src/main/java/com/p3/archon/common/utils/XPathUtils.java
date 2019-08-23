@@ -198,33 +198,33 @@ public class XPathUtils {
     }
     return str;
   }
-  private static Pair getAttr(String xpath) {
-    Pair attr = null;
-    String name = "";
-    String value ="";
-    boolean readName=false;
-    boolean readValue=false;
+  // private static Pair getAttr(String xpath) {
+  //   Pair attr = null;
+  //   String name = "";
+  //   String value ="";
+  //   boolean readName=false;
+  //   boolean readValue=false;
 
-    for(int i = 0; i <xpath.length(); ++i) {
-      if(readName == true && xpath.charAt(i) != '=') {
-        name += xpath.charAt(i);
-      }
-      if(readValue == true && xpath.charAt(i) != '\'') {
-        value += xpath.charAt(i);
-      }
-      if(xpath.charAt(i) == '@') {
-        readName = true;
-      }
-      if(xpath.charAt(i) == '=') {
-        readName = false;
-        readValue = true;
-      }
-    }
-    if(name != null && value != null) {
-      attr = new Pair(name, value);
-    }
+  //   for(int i = 0; i <xpath.length(); ++i) {
+  //     if(readName == true && xpath.charAt(i) != '=') {
+  //       name += xpath.charAt(i);
+  //     }
+  //     if(readValue == true && xpath.charAt(i) != '\'') {
+  //       value += xpath.charAt(i);
+  //     }
+  //     if(xpath.charAt(i) == '@') {
+  //       readName = true;
+  //     }
+  //     if(xpath.charAt(i) == '=') {
+  //       readName = false;
+  //       readValue = true;
+  //     }
+  //   }
+  //   if(name != null && value != null) {
+  //     attr = new Pair(name, value);
+  //   }
 
-    return attr;
-  }
+  //   return attr;
+  // }
 
 }

@@ -42,7 +42,7 @@ public class DownloadController {
       int nRead;
       byte[] data = new byte[1024];
       while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
-        System.out.println("Writing some bytes..");
+        logger.info("Writing some bytes..");
         outputStream.write(data, 0, nRead);
       }
     };

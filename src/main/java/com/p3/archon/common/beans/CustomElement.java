@@ -17,6 +17,8 @@ import lombok.Setter;
 @Setter
 public class CustomElement extends DefaultElement{
 	
+	private static final long serialVersionUID = 3930903067108505101L;
+
 	public CustomElement(Node element) {
 		super(element.getName());
 	}

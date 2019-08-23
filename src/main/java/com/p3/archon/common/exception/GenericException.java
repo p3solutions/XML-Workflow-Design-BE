@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class GenericException extends RuntimeException {
 
+  private static final long serialVersionUID = 6583806548830894059L;
   private static final Logger logger = LoggerFactory.getLogger(GenericException.class);
 
   public GenericException(final String message, final Throwable exception) {

@@ -28,8 +28,8 @@ public class XMLFileReader {
 	// Path to determine if there is a child
 	private String sequenceChildPath = "xs:complexType/xs:sequence/xs:element";
 	private String choiceChildPath = "xs:complexType/xs:choice/xs:element";
-	private String attributeChildPath1 = "xs:complexType/xs:simpleContent/xs:extension/xs:attribute";
-	private String attributeChildPath2 = "xs:complexType/xs:attribute";
+	// private String attributeChildPath1 = "xs:complexType/xs:simpleContent/xs:extension/xs:attribute";
+	// private String attributeChildPath2 = "xs:complexType/xs:attribute";
 	private String xmlFileName = "";
 	@SuppressWarnings("unused")
 	private String xsdFileName = "";
